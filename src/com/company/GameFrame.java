@@ -35,6 +35,8 @@ public class GameFrame extends JFrame
     File chesmov=new File(chesmovp);
     String victoryp = new File("").getAbsolutePath() + "\\ReversiMaterials\\musics\\victory.wav";
     File victory=new File(victoryp);
+    String BGMp = new File("").getAbsolutePath() + "\\ReversiMaterials\\musics\\BGM.wav";
+    File BGMf=new File(BGMp);
     String ErrorLogp = new File("").getAbsolutePath() + "\\ReversiMaterials\\Errorlog.txt";
     File ErrorLog=new File(ErrorLogp);
     String Picp = new File("").getAbsolutePath() + "\\ReversiMaterials\\Pic.png";
@@ -53,7 +55,14 @@ public class GameFrame extends JFrame
     File WWinf=new File(WWinp);
     String Drawp = new File("").getAbsolutePath() + "\\ReversiMaterials\\Draw.gif";
     File Drawf=new File(Drawp);
+    String BTurnWp = new File("").getAbsolutePath() + "\\ReversiMaterials\\BTurnW.gif";
+    File BTurnWf=new File(BTurnWp);
+    String WTurnBp = new File("").getAbsolutePath() + "\\ReversiMaterials\\WTurnB.gif";
+    File WTurnBf=new File(WTurnBp);
+    String Scorep = new File("").getAbsolutePath() + "\\ReversiMaterials\\icons\\score.png";
+    File Scoref=new File(Scorep);
     JLabel p2=new JLabel();
+    Clip c;
     boolean nowloading=false;
     public void Init()
     {
@@ -64,6 +73,13 @@ public class GameFrame extends JFrame
             {
                 button[i][j]=new JButton();
             }
+        }
+        try {
+            c=AudioSystem.getClip();
+            c.open(AudioSystem.getAudioInputStream(BGMf));
+            c.loop(3);
+        } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+            e.printStackTrace();
         }
         initboard();
     }
@@ -170,6 +186,7 @@ public class GameFrame extends JFrame
                 cnt=t;
             }
             JPanel p=new JPanel();
+            c.stop();
             if(cnt>cnt2)
             {
                 ImageIcon BWin=new ImageIcon(BWinf.getPath());
@@ -194,6 +211,7 @@ public class GameFrame extends JFrame
                 p2.setIcon(WWin);
                 JOptionPane.showMessageDialog(p,"WHITE wins!","Game Over",JOptionPane.PLAIN_MESSAGE,white);
             }
+            c.start();
 //            initboard();
         }
         return true;
@@ -475,6 +493,12 @@ public class GameFrame extends JFrame
                 p2.setIcon(WTurn);
             }
         }
+        ImageIcon BTurnW=new ImageIcon(BTurnWf.getPath());
+        Image temp5 = BTurnW.getImage().getScaledInstance(75, 75, BTurnW.getImage().SCALE_DEFAULT);
+        BTurnW = new ImageIcon(temp5);
+        ImageIcon WTurnB=new ImageIcon(WTurnBf.getPath());
+        Image temp6 = WTurnB.getImage().getScaledInstance(75, 75, WTurnB.getImage().SCALE_DEFAULT);
+        WTurnB = new ImageIcon(temp6);
         int i,j;
         for(i=1;i<=8;i++)
         {
@@ -492,11 +516,25 @@ public class GameFrame extends JFrame
                 }
                 else if(board[bcnt][i][j]==1)
                 {
-                    button[i][j].setIcon(black);
+                    if(!nowloading&&bcnt>=1&&board[bcnt-1][i][j]==-1)
+                    {
+                        button[i][j].setIcon(WTurnB);
+                    }
+                    else
+                    {
+                        button[i][j].setIcon(black);
+                    }
                 }
                 else if(board[bcnt][i][j]==-1)
                 {
-                    button[i][j].setIcon(white);
+                    if(!nowloading&&bcnt>=1&&board[bcnt-1][i][j]==1)
+                    {
+                        button[i][j].setIcon(BTurnW);
+                    }
+                    else
+                    {
+                        button[i][j].setIcon(white);
+                    }
                 }
             }
         }
@@ -625,7 +663,7 @@ public class GameFrame extends JFrame
             now=-now;
             timer.stop();
             nowloading=false;
-            buildboard(false);
+
             JPanel p=new JPanel();
             if(!hasError)
             {
@@ -635,6 +673,7 @@ public class GameFrame extends JFrame
             {
                 JOptionPane.showMessageDialog(p,"AN ERROR OCCURRED, LOADING SUSPENDED!\nCheck Errorlog for further Info","Error! ",0);
             }
+            buildboard(false);
         }
     }
     boolean hasError=false;
@@ -1086,9 +1125,12 @@ public class GameFrame extends JFrame
             }
         });
 
+        ImageIcon Score=new ImageIcon(Scoref.getPath());
+        Image temp5 = Score.getImage().getScaledInstance(415, 40, Score.getImage().SCALE_DEFAULT);
+        Score = new ImageIcon(temp5);
+        JLabel tmplabel=new JLabel(Score);
         JPanel pp=new JPanel();
-        pp.setBackground(Color.CYAN);
-//        JLabel p1=new JLabel("");
+        pp.setBackground(Color.GRAY);
         p1.setFont(new Font("黑体",Font.BOLD,20));
         con=makecon(10,0,10,1,0,0);
         pp.add(p1);
